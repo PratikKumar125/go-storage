@@ -1,4 +1,4 @@
-module go-storage
+module github.com/PratikKumar125/go-storage
 
 go 1.22.3
 
