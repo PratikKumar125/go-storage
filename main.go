@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"go-storage/storage"
 	"io"
 	"net/http"
 	"os"
 	"text/template"
 	"time"
 
+	"github.com/PratikKumar125/go-storage/storage"
 	ffmpeg "github.com/u2takey/ffmpeg-go"
 )
 
