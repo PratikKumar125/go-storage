@@ -137,16 +137,29 @@ func (st *StorageStruct) Exists(path string) (s3.HeadObjectOutput, error) {
 	return res,nil
 }
 
-func (st *StorageStruct) SignedURL(path string) (string, error) {
+func (st *StorageStruct) SignedURL(path string, expiry int) (map[string]string, error) {
 	st.InitConnection()
 	currentDiskInfo := st.getDiskInfo()
 
-	req, _ := st.connection.PutObjectRequest(&s3.PutObjectInput{
+	putReq, _ := st.connection.PutObjectRequest(&s3.PutObjectInput{
         Bucket: aws.String(currentDiskInfo.Bucket),
         Key:    aws.String(path),
     })
-    url, err := req.Presign(15 * time.Minute)
-	return url, err
+    putUrl, err := putReq.Presign(time.Duration(expiry) * time.Minute)
+	if err != nil {
+		return map[string]string{}, err
+	}
+
+	getReq, _ := st.connection.GetObjectRequest(&s3.GetObjectInput{
+        Bucket: aws.String(currentDiskInfo.Bucket),
+        Key:    aws.String(path),
+    })
+    getUrl, err := getReq.Presign(time.Duration(expiry) * time.Minute)
+	if err != nil {
+		return map[string]string{}, err
+	}
+
+	return map[string]string{"signedUrl": putUrl, "url": getUrl}, err
 }
 
 func (st *StorageStruct) Meta(path string) (s3.HeadObjectOutput, error) {
